@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: moviehub-api
+    runtime: node
+    rootDir: Back-End
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    disk:
+      name: moviehub-uploads
+      mountPath: /var/data/uploads
+      sizeGB: 10
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: DB_SSL
+        value: "true"
+      - key: DB_SSL_REJECT_UNAUTHORIZED
+        value: "true"
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: MAX_MOVIE_FILE_SIZE_MB
+        value: "2048"
+      - key: MAX_POSTER_FILE_SIZE_MB
+        value: "5"
+      - key: PAYMENT_CURRENCY
+        value: RWF
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

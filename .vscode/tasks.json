@@ -1,0 +1,42 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "MovieHub backend dev",
+			"type": "shell",
+			"command": "node src/server.js",
+			"options": { "cwd": "${workspaceFolder}/Back-End" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MovieHub frontend dev",
+			"type": "shell",
+			"command": "node node_modules/vite/bin/vite.js --host 127.0.0.1",
+			"options": { "cwd": "${workspaceFolder}/Front-End" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MovieHub frontend build",
+			"type": "shell",
+			"command": "node node_modules/vite/bin/vite.js build",
+			"options": { "cwd": "${workspaceFolder}/Front-End" },
+			"problemMatcher": []
+		},
+		{
+			"label": "MovieHub copy logo",
+			"type": "shell",
+			"command": "Copy-Item -LiteralPath logo/logo.png -Destination Front-End/public/logo.png -Force",
+			"options": { "cwd": "${workspaceFolder}" },
+			"problemMatcher": []
+		},
+		{
+			"label": "MovieHub backend tests",
+			"type": "shell",
+			"command": "node --test",
+			"options": { "cwd": "${workspaceFolder}/Back-End" },
+			"problemMatcher": []
+		}
+	]
+}
