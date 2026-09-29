@@ -1,6 +1,6 @@
 # MovieHub
 
-MovieHub is a React/Vite frontend with a Node.js/Express API and MySQL database. The API and web app deploy separately: the API is prepared for Render, and the frontend is prepared for Vercel.
+MovieHub is a React/Vite frontend with a Node.js/Express API and MySQL database. The API and frontend deploy as separate services from the same Render Blueprint; the API connects to an external MySQL provider.
 
 ## Project map
 
@@ -19,8 +19,8 @@ MovieHub is a React/Vite frontend with a Node.js/Express API and MySQL database.
 3. Do not import `database/seed.sql` in production. It contains demo accounts and sample records.
 4. Deploy the API service on Render from this repository using `render.yaml`. The blueprint uses Render's Free web service and has no persistent disk.
 5. Set the Render API environment variables listed below. Render generates `PORT`; the server uses it automatically.
-6. Deploy `Front-End` as the Vercel project root. Set `VITE_API_URL` to the full Render API URL ending in `/api`, and set `VITE_ASSET_URL` to the API origin (no `/api`). Vite variables are public build-time values; never put credentials in them.
-7. Once Vercel gives you the production site domain, add that exact origin to Render's `FRONTEND_URL` and redeploy the API. Include the scheme, e.g. `https://moviehub.example`; comma-separate additional exact origins if needed.
+6. The same Blueprint deploys `Front-End` as a Render Static Site. It builds with `npm ci && npm run build`, publishes `dist`, and sets `VITE_API_URL` to the backend API and `VITE_ASSET_URL` to the backend origin. Vite variables are public build-time values; never put credentials in them.
+7. After Render creates the frontend service and assigns its actual `onrender.com` URL, set the backend service's `FRONTEND_URL` to that exact origin and redeploy the backend. Include the scheme, e.g. `https://moviehub-frontend.onrender.com`; comma-separate additional exact origins if needed.
 8. Register your own account on the deployed app. Promote it to admin in the production database using the SQL below, substituting your account email. Do not share that email/password here or commit it to the repository.
 9. Sign in through `/admin/login`, set the official payment destination, then upload a small test movie and poster. Use licensed test content only.
 
@@ -50,14 +50,14 @@ Render Free has ephemeral storage. Files under `/tmp/uploads` can disappear when
 
 For Aiven, set `DB_HOST`, `DB_PORT`, `DB_NAME`, and `DB_USER` from the service connection information, enter the rotated database password only in Render's `DB_PASSWORD` secret field, and leave `DB_SSL=true` and `DB_SSL_REJECT_UNAUTHORIZED=true`. If TLS verification fails, download the CA certificate in Aiven and put its PEM contents in Render's `DB_SSL_CA`; never disable certificate verification as a workaround.
 
-### Vercel environment variables
+### Render frontend environment variables
 
-Set both for **Production** and, as appropriate, Preview deployments, then redeploy after changing them.
+The Blueprint sets these public build-time values on the `moviehub-frontend` static site:
 
 | Variable | Example |
 | --- | --- |
-| `VITE_API_URL` | `https://moviehub-api.onrender.com/api` |
-| `VITE_ASSET_URL` | `https://moviehub-api.onrender.com` |
+| `VITE_API_URL` | `https://moviehub-api-woxm.onrender.com/api` |
+| `VITE_ASSET_URL` | `https://moviehub-api-woxm.onrender.com` |
 
 The `.env.example` files contain local-development examples only. Vite embeds `VITE_*` values in the public JavaScript bundle. Keep database credentials, JWT secrets, and provider secrets exclusively on the API host.
 
@@ -130,6 +130,6 @@ For database verification, use the Render service logs for the successful MySQL 
 ## Deployment files
 
 - `render.yaml`: Render Free API, ephemeral upload directory, health check, and secret-variable prompts
-- `Front-End/vercel.json`: client-side route fallback for React Router
+- `Front-End/vercel.json`: client-side route fallback for React Router if the frontend is deployed on Vercel instead
 - `.gitignore`: environment files, build output, dependencies, uploads, and local database dumps
 - `Back-End/.env.example`, `Front-End/.env.example`: non-secret local configuration examples

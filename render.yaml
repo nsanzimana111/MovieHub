@@ -39,3 +39,20 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+
+  - type: web
+    name: moviehub-frontend
+    runtime: static
+    rootDir: Front-End
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_URL
+        value: https://moviehub-api-woxm.onrender.com/api
+      - key: VITE_ASSET_URL
+        value: https://moviehub-api-woxm.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
