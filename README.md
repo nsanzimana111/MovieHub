@@ -38,7 +38,7 @@ The Blueprint marks the following values `sync: false`. Render may prompt for th
 | `DB_NAME` | Production database/schema name |
 | `DB_SSL` | `true` |
 | `DB_SSL_REJECT_UNAUTHORIZED` | `true`; use the provider's CA configuration if required, not a permanent verification bypass |
-| `DB_SSL_CA` | Optional provider CA certificate text, only when required by your database provider |
+| `DB_SSL_CA` | Optional Aiven CA certificate PEM text from Aiven's CA certificate download, if required for TLS verification |
 | `JWT_SECRET` | Generate a unique random value of at least 32 characters and set only in Render |
 | `FRONTEND_URL` | Exact Vercel origin, such as `https://moviehub.example` |
 | `UPLOAD_DIR` | `/tmp/uploads` (already declared by `render.yaml`; ephemeral on Render Free) |
@@ -47,6 +47,8 @@ The Blueprint marks the following values `sync: false`. Render may prompt for th
 | `MAX_POSTER_FILE_SIZE_MB` | `5` |
 
 Render Free has ephemeral storage. Files under `/tmp/uploads` can disappear whenever the service restarts, redeploys, or is recycled. The MySQL rows may remain while referenced movie/poster files vanish; downloads then fail and missing posters use the frontend fallback. This project intentionally does not configure a paid disk. For durable uploads, migrate to external object storage (private movie objects and public or signed poster URLs); do not expect the Free filesystem to preserve user uploads. Free services can also sleep when idle and have limited CPU, memory, bandwidth, and request capacity; large movie upload/download workloads may exceed those limits.
+
+For Aiven, set `DB_HOST`, `DB_PORT`, `DB_NAME`, and `DB_USER` from the service connection information, enter the rotated database password only in Render's `DB_PASSWORD` secret field, and leave `DB_SSL=true` and `DB_SSL_REJECT_UNAUTHORIZED=true`. If TLS verification fails, download the CA certificate in Aiven and put its PEM contents in Render's `DB_SSL_CA`; never disable certificate verification as a workaround.
 
 ### Vercel environment variables
 

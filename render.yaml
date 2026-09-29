@@ -33,6 +33,8 @@ services:
         sync: false
       - key: DB_NAME
         sync: false
+      - key: DB_SSL_CA
+        sync: false
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
