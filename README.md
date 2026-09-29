@@ -20,7 +20,7 @@ MovieHub is a React/Vite frontend with a Node.js/Express API and MySQL database.
 4. Deploy the API service on Render from this repository using `render.yaml`. The blueprint uses Render's Free web service and has no persistent disk.
 5. Set the Render API environment variables listed below. Render generates `PORT`; the server uses it automatically.
 6. The same Blueprint deploys `Front-End` as a Render Static Site. It builds with `npm ci && npm run build`, publishes `dist`, and sets `VITE_API_URL` to the backend API and `VITE_ASSET_URL` to the backend origin. Vite variables are public build-time values; never put credentials in them.
-7. After Render creates the frontend service and assigns its actual `onrender.com` URL, set the backend service's `FRONTEND_URL` to that exact origin and redeploy the backend. Include the scheme, e.g. `https://moviehub-frontend.onrender.com`; comma-separate additional exact origins if needed.
+7. The Blueprint sets the backend `FRONTEND_URL` to `https://moviehub-web.onrender.com`, matching the MovieHub-specific static service name and avoiding the existing unrelated `moviehub-frontend` service. After Render creates the service, confirm its assigned URL matches. If Render assigns a different slug, update backend `FRONTEND_URL` to the exact assigned origin and redeploy. Comma-separate additional exact origins only when required.
 8. Register your own account on the deployed app. Promote it to admin in the production database using the SQL below, substituting your account email. Do not share that email/password here or commit it to the repository.
 9. Sign in through `/admin/login`, set the official payment destination, then upload a small test movie and poster. Use licensed test content only.
 
@@ -40,7 +40,7 @@ The Blueprint marks the following values `sync: false`. Render may prompt for th
 | `DB_SSL_REJECT_UNAUTHORIZED` | `true`; use the provider's CA configuration if required, not a permanent verification bypass |
 | `DB_SSL_CA` | Optional Aiven CA certificate PEM text from Aiven's CA certificate download, if required for TLS verification |
 | `JWT_SECRET` | Generate a unique random value of at least 32 characters and set only in Render |
-| `FRONTEND_URL` | Exact Vercel origin, such as `https://moviehub.example` |
+| `FRONTEND_URL` | `https://moviehub-web.onrender.com` (set in the Blueprint; verify this matches the URL Render assigns) |
 | `UPLOAD_DIR` | `/tmp/uploads` (already declared by `render.yaml`; ephemeral on Render Free) |
 | `JWT_EXPIRES_IN` | `7d` (already declared by `render.yaml`) |
 | `MAX_MOVIE_FILE_SIZE_MB` | `2048` by default; lower it to fit your plan and storage budget |
@@ -52,7 +52,7 @@ For Aiven, set `DB_HOST`, `DB_PORT`, `DB_NAME`, and `DB_USER` from the service c
 
 ### Render frontend environment variables
 
-The Blueprint sets these public build-time values on the `moviehub-frontend` static site:
+The Blueprint sets these public build-time values on the `moviehub-web` static site:
 
 | Variable | Example |
 | --- | --- |

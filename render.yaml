@@ -38,10 +38,10 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
-        sync: false
+        value: https://moviehub-web.onrender.com
 
   - type: web
-    name: moviehub-frontend
+    name: moviehub-web
     runtime: static
     rootDir: Front-End
     buildCommand: npm ci && npm run build
