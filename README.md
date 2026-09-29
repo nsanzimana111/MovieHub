@@ -17,7 +17,7 @@ MovieHub is a React/Vite frontend with a Node.js/Express API and MySQL database.
 1. Create an empty MySQL database with a managed MySQL provider that supports external TLS connections. Do not use XAMPP or `localhost` for production.
 2. Import `database/schema.sql` once into that empty database. This script drops/recreates MovieHub tables, so never run it against data you need to keep.
 3. Do not import `database/seed.sql` in production. It contains demo accounts and sample records.
-4. Deploy the API service on Render from this repository using `render.yaml`. The blueprint uses a paid single-instance service with a persistent disk mounted at `/var/data/uploads`; do not scale it to multiple instances while using local disk uploads.
+4. Deploy the API service on Render from this repository using `render.yaml`. The blueprint uses Render's Free web service and has no persistent disk.
 5. Set the Render API environment variables listed below. Render generates `PORT`; the server uses it automatically.
 6. Deploy `Front-End` as the Vercel project root. Set `VITE_API_URL` to the full Render API URL ending in `/api`, and set `VITE_ASSET_URL` to the API origin (no `/api`). Vite variables are public build-time values; never put credentials in them.
 7. Once Vercel gives you the production site domain, add that exact origin to Render's `FRONTEND_URL` and redeploy the API. Include the scheme, e.g. `https://moviehub.example`; comma-separate additional exact origins if needed.
@@ -26,7 +26,7 @@ MovieHub is a React/Vite frontend with a Node.js/Express API and MySQL database.
 
 ### Render environment variables
 
-Create these under the Render API service's **Environment** settings. Do not commit the values.
+The Blueprint marks the following values `sync: false`. Render may prompt for them while creating the Blueprint; otherwise add them under the API service's **Environment** settings. Do not commit the values.
 
 | Variable | Value |
 | --- | --- |
@@ -41,13 +41,12 @@ Create these under the Render API service's **Environment** settings. Do not com
 | `DB_SSL_CA` | Optional provider CA certificate text, only when required by your database provider |
 | `JWT_SECRET` | Generate a unique random value of at least 32 characters and set only in Render |
 | `FRONTEND_URL` | Exact Vercel origin, such as `https://moviehub.example` |
-| `UPLOAD_DIR` | `/var/data/uploads` (already declared by `render.yaml`) |
+| `UPLOAD_DIR` | `/tmp/uploads` (already declared by `render.yaml`; ephemeral on Render Free) |
 | `JWT_EXPIRES_IN` | `7d` (already declared by `render.yaml`) |
 | `MAX_MOVIE_FILE_SIZE_MB` | `2048` by default; lower it to fit your plan and storage budget |
 | `MAX_POSTER_FILE_SIZE_MB` | `5` |
-| `PAYMENT_CURRENCY` | `RWF` |
 
-Render's persistent disk is required because the database stores upload file paths. The disk is durable across service restarts but belongs to that one service instance; it is not shared storage for horizontal scaling. For multiple instances, move movies and posters to private/public object storage (for example S3-compatible storage) and store object keys instead of local paths. Large uploads and downloads consume disk, bandwidth, and request time; validate the host's upload/request limits before accepting production-sized films.
+Render Free has ephemeral storage. Files under `/tmp/uploads` can disappear whenever the service restarts, redeploys, or is recycled. The MySQL rows may remain while referenced movie/poster files vanish; downloads then fail and missing posters use the frontend fallback. This project intentionally does not configure a paid disk. For durable uploads, migrate to external object storage (private movie objects and public or signed poster URLs); do not expect the Free filesystem to preserve user uploads. Free services can also sleep when idle and have limited CPU, memory, bandwidth, and request capacity; large movie upload/download workloads may exceed those limits.
 
 ### Vercel environment variables
 
@@ -128,7 +127,7 @@ For database verification, use the Render service logs for the successful MySQL 
 
 ## Deployment files
 
-- `render.yaml`: Render API, persistent disk, health check, and secret-variable prompts
+- `render.yaml`: Render Free API, ephemeral upload directory, health check, and secret-variable prompts
 - `Front-End/vercel.json`: client-side route fallback for React Router
 - `.gitignore`: environment files, build output, dependencies, uploads, and local database dumps
 - `Back-End/.env.example`, `Front-End/.env.example`: non-secret local configuration examples

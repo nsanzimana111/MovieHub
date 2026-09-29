@@ -10,10 +10,15 @@ const start = async () => {
   try {
     if (process.env.NODE_ENV === 'production') {
       if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-        throw new Error('Production requires JWT_SECRET to contain at least 32 characters.');
+        const error = new Error('Production JWT configuration is invalid.');
+        error.code = 'CONFIGURATION_ERROR';
+        throw error;
       }
-      if (!process.env.FRONTEND_URL || !process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_NAME) {
-        throw new Error('Production requires FRONTEND_URL, DB_HOST, DB_USER, and DB_NAME environment variables.');
+      const requiredVariables = ['FRONTEND_URL', 'DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+      if (requiredVariables.some((name) => !process.env[name])) {
+        const error = new Error('Required production environment configuration is missing.');
+        error.code = 'CONFIGURATION_ERROR';
+        throw error;
       }
     }
 
@@ -25,8 +30,11 @@ const start = async () => {
       console.log(`MovieHub backend listening on port ${PORT}`);
     });
   } catch (error) {
-    console.error('Unable to connect to MySQL. Check your XAMPP/MySQL settings in .env');
-    console.error(error.message);
+    if (error.code === 'CONFIGURATION_ERROR') {
+      console.error(error.message);
+    } else {
+      console.error(`MovieHub startup failed (${error.code || error.name || 'unknown error'}). Check the Render environment settings and database availability.`);
+    }
     process.exit(1);
   }
 };
