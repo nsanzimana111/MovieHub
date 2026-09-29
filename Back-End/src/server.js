@@ -14,7 +14,7 @@ const start = async () => {
         error.code = 'CONFIGURATION_ERROR';
         throw error;
       }
-      const requiredVariables = ['FRONTEND_URL', 'DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+      const requiredVariables = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
       if (requiredVariables.some((name) => !process.env[name])) {
         const error = new Error('Required production environment configuration is missing.');
         error.code = 'CONFIGURATION_ERROR';
