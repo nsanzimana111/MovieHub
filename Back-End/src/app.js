@@ -40,6 +40,13 @@ app.use('/uploads/posters', (_req, res, next) => {
 });
 app.use('/uploads/posters', express.static(posterDir));
 
+app.get('/api/health', (_req, res) => {
+  res.json({
+    success: true,
+    message: 'MovieHub backend is running.',
+  });
+});
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
@@ -53,10 +60,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
-
-app.get('/api/health', (_req, res) => {
-  res.json({ success: true, message: 'MovieHub backend is running.' });
-});
 
 app.use(notFoundHandler);
 app.use(errorHandler);
